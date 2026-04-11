@@ -46,6 +46,7 @@ AIWebComponent/
 - `KnowledgeGraphPanel` 已补齐 `loading / empty / error` 等状态能力
 - 各面板都支持通过 `titleIcon`、`emptyVisual`、`loadingVisual`、`errorVisual` 以及对应 action 槽位接入更完整的引导内容
 - Showcase 已接入官方教育图标资源，用于演示真实接入方式
+- `assets/innospark-edu-agent-design/icons` 的完整 SVG 图标库已同步到仓库内的 `src/assets/icons/`，单独 clone `AIWebComponent` 也可直接启动和选用图标
 
 ## 设计文档
 

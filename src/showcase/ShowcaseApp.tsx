@@ -1,11 +1,11 @@
 import { startTransition, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import academicCapIcon from "../../../assets/innospark-edu-agent-design/icons/academic-cap.svg";
-import chatBubblesIcon from "../../../assets/innospark-edu-agent-design/icons/chat-bubbles.svg";
-import collectionIcon from "../../../assets/innospark-edu-agent-design/icons/collection.svg";
-import documentTextIcon from "../../../assets/innospark-edu-agent-design/icons/document-text.svg";
-import folderIcon from "../../../assets/innospark-edu-agent-design/icons/folder.svg";
-import informationCircleIcon from "../../../assets/innospark-edu-agent-design/icons/information-circle.svg";
-import lightBulbIcon from "../../../assets/innospark-edu-agent-design/icons/light-bulb.svg";
+import academicCapIcon from "../assets/icons/academic-cap.svg";
+import chatBubblesIcon from "../assets/icons/chat-bubbles.svg";
+import collectionIcon from "../assets/icons/collection.svg";
+import documentTextIcon from "../assets/icons/document-text.svg";
+import folderIcon from "../assets/icons/folder.svg";
+import informationCircleIcon from "../assets/icons/information-circle.svg";
+import lightBulbIcon from "../assets/icons/light-bulb.svg";
 import {
   ChatPanel,
   FileManagerPanel,
