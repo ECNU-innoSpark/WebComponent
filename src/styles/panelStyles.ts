@@ -22,7 +22,7 @@ const tonePalettes: Record<PanelTone, TonePalette> = {
   },
   secondary: {
     background: aiWebComponentTokens.colorSecondaryAccentSoft,
-    border: "#ddd1ff",
+    border: aiWebComponentTokens.colorBorder,
     text: aiWebComponentTokens.colorSecondaryAccent
   },
   success: {
@@ -46,7 +46,7 @@ export const panelSurfaceStyle = {
   background: aiWebComponentTokens.colorSurface,
   border: `1px solid ${aiWebComponentTokens.colorBorder}`,
   borderRadius: aiWebComponentTokens.radius,
-  boxShadow: aiWebComponentTokens.shadowSoft,
+  boxShadow: "none",
   overflow: "hidden"
 } satisfies CSSProperties;
 
@@ -56,7 +56,7 @@ export const panelHeaderStyle = {
   display: "flex",
   gap: 16,
   justifyContent: "space-between",
-  padding: "18px 20px"
+  padding: "14px 16px"
 } satisfies CSSProperties;
 
 export const panelHeaderMainStyle = {
@@ -86,7 +86,7 @@ export const panelSubtitleStyle = {
 export const panelBodyStyle = {
   display: "grid",
   gap: 14,
-  padding: 20
+  padding: 16
 } satisfies CSSProperties;
 
 export const sectionLabelStyle = {
@@ -113,10 +113,10 @@ export function createToneBadgeStyle(tone: PanelTone = "accent"): CSSProperties 
     borderRadius: aiWebComponentTokens.radiusPill,
     color: palette.text,
     display: "inline-flex",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 700,
     gap: 6,
-    padding: "6px 10px",
+    padding: "4px 9px",
     whiteSpace: "nowrap"
   };
 }
@@ -131,7 +131,7 @@ export function createStateCardStyle(tone: PanelTone = "neutral"): CSSProperties
     color: palette.text,
     display: "grid",
     gap: 6,
-    padding: "18px 16px"
+    padding: "16px"
   };
 }
 
@@ -142,36 +142,34 @@ export function createIconFrameStyle(tone: PanelTone = "accent"): CSSProperties 
     alignItems: "center",
     background: palette.background,
     border: `1px solid ${palette.border}`,
-    borderRadius: 14,
+    borderRadius: aiWebComponentTokens.radiusSmall,
     color: palette.text,
     display: "inline-flex",
     flexShrink: 0,
-    height: 36,
+    height: 30,
     justifyContent: "center",
-    width: 36
+    width: 30
   };
 }
 
 export function createGhostButtonStyle(interactive: boolean): CSSProperties {
   return {
-    background: aiWebComponentTokens.colorSurfaceMuted,
+    background: aiWebComponentTokens.colorSurface,
     border: `1px solid ${aiWebComponentTokens.colorBorder}`,
     borderRadius: aiWebComponentTokens.radiusPill,
     color: aiWebComponentTokens.colorText,
     cursor: interactive ? "pointer" : "default",
     fontSize: 12,
     fontWeight: 700,
-    padding: "6px 10px"
+    padding: "7px 11px"
   };
 }
 
 export function createSelectableCardStyle(active: boolean): CSSProperties {
   return {
-    background: active
-      ? `linear-gradient(180deg, ${aiWebComponentTokens.colorAccentSoft} 0%, #f8f8ff 100%)`
-      : aiWebComponentTokens.colorSurfaceMuted,
+    background: active ? aiWebComponentTokens.colorSurfaceMuted : aiWebComponentTokens.colorSurface,
     border: `1px solid ${active ? aiWebComponentTokens.colorBorderStrong : aiWebComponentTokens.colorBorder}`,
     borderRadius: aiWebComponentTokens.radiusSmall,
-    boxShadow: active ? "0 14px 28px rgba(85, 90, 255, 0.12)" : "none"
+    boxShadow: "none"
   };
 }

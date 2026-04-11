@@ -95,9 +95,13 @@ export function FileManagerPanel({
   const showError = status === "error";
   const showEmpty = nodes.length === 0 && status === "idle";
   const showLoading = nodes.length === 0 && status === "loading";
+  const surfaceStyle = hideHeader
+    ? { ...panelSurfaceStyle, background: "transparent", border: "none", borderRadius: 0 }
+    : panelSurfaceStyle;
+  const bodyStyle = hideHeader ? { ...panelBodyStyle, gap: 8, padding: 0 } : { ...panelBodyStyle, gap: 10 };
 
   return (
-    <section style={panelSurfaceStyle}>
+    <section style={surfaceStyle}>
       {!hideHeader ? (
         <header style={{ ...panelHeaderStyle, display: "grid" }}>
           <div
@@ -149,7 +153,7 @@ export function FileManagerPanel({
         </header>
       ) : null}
 
-      <div style={{ ...panelBodyStyle, gap: 10 }}>
+      <div style={bodyStyle}>
         {hideHeader ? (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {buildBreadcrumbs(currentPath).map((item) => (
@@ -204,6 +208,7 @@ export function FileManagerPanel({
 
         {nodes.map((node) => {
           const nodeActions = renderNodeActions?.(node);
+          const isSelected = node.path === selectedPath;
 
           return (
             <article
@@ -211,11 +216,14 @@ export function FileManagerPanel({
               onClick={() => onSelectNode?.(node)}
               style={{
                 alignItems: "center",
-                ...createSelectableCardStyle(node.path === selectedPath),
+                ...createSelectableCardStyle(isSelected),
+                borderLeft: `2px solid ${
+                  isSelected ? aiWebComponentTokens.colorAccent : "transparent"
+                }`,
                 cursor: onSelectNode ? "pointer" : "default",
                 display: "grid",
-                gap: 4,
-                padding: "14px 16px"
+                gap: 6,
+                padding: "10px 12px"
               }}
             >
               <div
@@ -226,14 +234,25 @@ export function FileManagerPanel({
                   justifyContent: "space-between"
                 }}
               >
-                <div style={{ alignItems: "center", display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  <span style={createToneBadgeStyle(node.kind === "directory" ? "accent" : "secondary")}>
+                <div style={{ display: "grid", gap: 4 }}>
+                  <strong style={{ color: aiWebComponentTokens.colorText }}>{node.name}</strong>
+                  <span
+                    style={{
+                      color:
+                        node.kind === "directory"
+                          ? aiWebComponentTokens.colorAccent
+                          : aiWebComponentTokens.colorMuted,
+                      fontSize: 11,
+                      fontWeight: 700,
+                      letterSpacing: "0.06em",
+                      textTransform: "uppercase"
+                    }}
+                  >
                     {node.kind === "directory" ? "目录" : "文件"}
                   </span>
-                  <strong style={{ color: aiWebComponentTokens.colorText }}>{node.name}</strong>
                 </div>
                 {node.badge ? (
-                  <span style={createToneBadgeStyle(node.path === selectedPath ? "accent" : "neutral")}>
+                  <span style={createToneBadgeStyle(isSelected ? "accent" : "neutral")}>
                     {node.badge}
                   </span>
                 ) : null}
@@ -248,7 +267,7 @@ export function FileManagerPanel({
                 onClick={(event) => {
                   event.stopPropagation();
                 }}
-                style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 8 }}
+                style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 4 }}
               >
                 {node.kind === "directory" ? (
                   <button
@@ -280,7 +299,7 @@ export function FileManagerPanel({
 const actionButtonStyle = {
   background: aiWebComponentTokens.colorSurface,
   border: `1px solid ${aiWebComponentTokens.colorBorder}`,
-  borderRadius: aiWebComponentTokens.radiusPill,
+  borderRadius: 8,
   color: aiWebComponentTokens.colorText,
   cursor: "pointer",
   fontSize: 12,

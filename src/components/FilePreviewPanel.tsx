@@ -60,9 +60,15 @@ export function FilePreviewPanel({
   const showEmpty = !hasContent && status === "idle";
   const showLoading = !hasContent && status === "loading";
   const isPrimitiveContent = typeof content === "string" || typeof content === "number";
+  const surfaceStyle = hideHeader
+    ? { ...panelSurfaceStyle, background: "transparent", border: "none", borderRadius: 0 }
+    : panelSurfaceStyle;
+  const bodyStyle = hideHeader
+    ? { ...panelBodyStyle, minHeight: 320, padding: 0 }
+    : { ...panelBodyStyle, minHeight: 320 };
 
   return (
-    <section style={panelSurfaceStyle}>
+    <section style={surfaceStyle}>
       {!hideHeader ? (
         <header style={panelHeaderStyle}>
           <div style={panelHeaderMainStyle}>
@@ -82,12 +88,7 @@ export function FilePreviewPanel({
         </header>
       ) : null}
 
-      <div
-        style={{
-          ...panelBodyStyle,
-          minHeight: 320
-        }}
-      >
+      <div style={bodyStyle}>
         {showError ? (
           <PanelStateBlock
             action={errorAction}
@@ -118,12 +119,12 @@ export function FilePreviewPanel({
         {!showLoading && !showEmpty && !showError ? (
           <div
             style={{
-              background: "linear-gradient(180deg, #f8f9ff 0%, #eef1ff 100%)",
-              border: `1px solid ${aiWebComponentTokens.colorBorderStrong}`,
+              background: aiWebComponentTokens.colorSurfaceRaised,
+              border: `1px solid ${aiWebComponentTokens.colorBorder}`,
               borderRadius: aiWebComponentTokens.radiusSmall,
               minHeight: 280,
               overflow: "auto",
-              padding: 18
+              padding: 14
             }}
           >
             {isPrimitiveContent ? (

@@ -69,9 +69,13 @@ export function SessionListPanel({
   const showError = status === "error";
   const showEmpty = items.length === 0 && status === "idle";
   const showLoading = items.length === 0 && status === "loading";
+  const surfaceStyle = hideHeader
+    ? { ...panelSurfaceStyle, background: "transparent", border: "none", borderRadius: 0 }
+    : panelSurfaceStyle;
+  const bodyStyle = hideHeader ? { ...panelBodyStyle, gap: 8, padding: 0 } : { ...panelBodyStyle, gap: 10 };
 
   return (
-    <section style={panelSurfaceStyle}>
+    <section style={surfaceStyle}>
       {!hideHeader ? (
         <header style={panelHeaderStyle}>
           <div style={panelHeaderMainStyle}>
@@ -86,7 +90,7 @@ export function SessionListPanel({
         </header>
       ) : null}
 
-      <div style={{ ...panelBodyStyle, gap: 10 }}>
+      <div style={bodyStyle}>
         {showError ? (
           <PanelStateBlock
             action={errorAction}
@@ -127,10 +131,13 @@ export function SessionListPanel({
               key={item.id}
               style={{
                 ...createSelectableCardStyle(isActive),
+                borderLeft: `2px solid ${
+                  isActive ? aiWebComponentTokens.colorAccent : "transparent"
+                }`,
                 display: "grid",
                 gap: 6,
                 opacity: item.disabled ? 0.6 : 1,
-                padding: "14px 16px"
+                padding: "10px 12px"
               }}
             >
               <button
