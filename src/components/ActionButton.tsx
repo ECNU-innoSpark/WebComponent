@@ -66,14 +66,15 @@ function resolveVariantStyle(
     return {
       background: aiWebComponentTokens.colorAccent,
       borderColor: aiWebComponentTokens.colorAccent,
-      color: aiWebComponentTokens.colorSurface
+      boxShadow: aiWebComponentTokens.shadowSoft,
+      color: aiWebComponentTokens.colorTextInverse
     };
   }
 
   if (variant === "danger") {
     return {
       background: aiWebComponentTokens.colorDangerSoft,
-      borderColor: "#f6c5d1",
+      borderColor: aiWebComponentTokens.colorDangerBorder,
       color: aiWebComponentTokens.colorDanger
     };
   }

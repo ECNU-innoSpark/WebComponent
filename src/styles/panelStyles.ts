@@ -12,32 +12,32 @@ type TonePalette = {
 const tonePalettes: Record<PanelTone, TonePalette> = {
   neutral: {
     background: aiWebComponentTokens.colorSurfaceMuted,
-    border: aiWebComponentTokens.colorBorder,
+    border: aiWebComponentTokens.colorBorderSubtle,
     text: aiWebComponentTokens.colorTextSubtle
   },
   accent: {
     background: aiWebComponentTokens.colorAccentSoft,
-    border: aiWebComponentTokens.colorBorderStrong,
-    text: aiWebComponentTokens.colorAccent
+    border: aiWebComponentTokens.colorAccentBorder,
+    text: aiWebComponentTokens.colorAccentStrong
   },
   secondary: {
     background: aiWebComponentTokens.colorSecondaryAccentSoft,
-    border: aiWebComponentTokens.colorBorder,
-    text: aiWebComponentTokens.colorSecondaryAccent
+    border: aiWebComponentTokens.colorSecondaryAccentBorder,
+    text: aiWebComponentTokens.colorSecondaryAccentStrong
   },
   success: {
     background: aiWebComponentTokens.colorSuccessSoft,
-    border: "#bde8d3",
+    border: aiWebComponentTokens.colorSuccessBorder,
     text: aiWebComponentTokens.colorSuccess
   },
   warning: {
     background: aiWebComponentTokens.colorWarningSoft,
-    border: "#f7de95",
-    text: "#b7791f"
+    border: aiWebComponentTokens.colorWarningBorder,
+    text: aiWebComponentTokens.colorWarningStrong
   },
   danger: {
     background: aiWebComponentTokens.colorDangerSoft,
-    border: "#f6c5d1",
+    border: aiWebComponentTokens.colorDangerBorder,
     text: aiWebComponentTokens.colorDanger
   }
 };
@@ -154,7 +154,7 @@ export function createIconFrameStyle(tone: PanelTone = "accent"): CSSProperties 
 
 export function createGhostButtonStyle(interactive: boolean): CSSProperties {
   return {
-    background: aiWebComponentTokens.colorSurface,
+    background: aiWebComponentTokens.colorSurfaceRaised,
     border: `1px solid ${aiWebComponentTokens.colorBorder}`,
     borderRadius: aiWebComponentTokens.radiusPill,
     color: aiWebComponentTokens.colorText,
@@ -167,9 +167,11 @@ export function createGhostButtonStyle(interactive: boolean): CSSProperties {
 
 export function createSelectableCardStyle(active: boolean): CSSProperties {
   return {
-    background: active ? aiWebComponentTokens.colorSurfaceMuted : aiWebComponentTokens.colorSurface,
-    border: `1px solid ${active ? aiWebComponentTokens.colorBorderStrong : aiWebComponentTokens.colorBorder}`,
+    background: active ? aiWebComponentTokens.colorSurfaceAccent : aiWebComponentTokens.colorSurface,
+    border: `1px solid ${
+      active ? aiWebComponentTokens.colorAccentBorder : aiWebComponentTokens.colorBorder
+    }`,
     borderRadius: aiWebComponentTokens.radiusSmall,
-    boxShadow: "none"
+    boxShadow: active ? aiWebComponentTokens.shadowSoft : "none"
   };
 }

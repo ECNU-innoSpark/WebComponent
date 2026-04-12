@@ -1,0 +1,4 @@
+interface:
+  display_name: "IAIE Agent Design"
+  short_description: "IAIE / InnoSpark 教育 agent 前端设计规范"
+  default_prompt: "Use $innospark-edu-agent-design to design, review, or extend an IAIE/InnoSpark educational agent demo or related frontend page."

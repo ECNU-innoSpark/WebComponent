@@ -52,15 +52,15 @@ export type ChatPanelProps = {
 };
 
 const chatContentMaxWidth = 860;
-const chatBrandColor = "#555AFF";
-const chatBrandSoft = "rgba(85, 90, 255, 0.08)";
-const chatBrandBorder = "rgba(85, 90, 255, 0.16)";
+const chatBrandColor = aiWebComponentTokens.colorAccent;
+const chatBrandSoft = aiWebComponentTokens.colorAccentSoft;
+const chatBrandBorder = aiWebComponentTokens.colorAccentBorder;
 
 const roleLabelColors: Record<ChatMessageRole, string> = {
   system: aiWebComponentTokens.colorMuted,
-  user: "rgba(255, 255, 255, 0.72)",
-  assistant: chatBrandColor,
-  tool: aiWebComponentTokens.colorSecondaryAccent
+  user: aiWebComponentTokens.colorTextInverseSubtle,
+  assistant: aiWebComponentTokens.colorAccentStrong,
+  tool: aiWebComponentTokens.colorSecondaryAccentStrong
 };
 
 const roleColumnWidths: Record<ChatMessageRole, string> = {
@@ -253,9 +253,9 @@ export function ChatPanel({
               const messageActions = renderMessageActions?.(message);
               const messageBorderTone =
                 message.status === "error"
-                  ? aiWebComponentTokens.colorDanger
+                  ? aiWebComponentTokens.colorDangerBorder
                   : message.status === "streaming"
-                    ? aiWebComponentTokens.colorAccent
+                    ? aiWebComponentTokens.colorAccentBorder
                     : aiWebComponentTokens.colorBorder;
               const isUser = message.role === "user";
               const isAssistant = message.role === "assistant";
@@ -263,12 +263,14 @@ export function ChatPanel({
               const isSystem = message.role === "system";
               const showAssistantSurface = isAssistant && (Boolean(message.title) || Boolean(message.description) || message.status === "streaming");
               const bubbleBackground = isUser
-                ? aiWebComponentTokens.colorText
+                ? aiWebComponentTokens.colorAccent
                 : isAssistant
                   ? showAssistantSurface
-                    ? "rgba(255, 255, 255, 0.88)"
+                    ? aiWebComponentTokens.colorSurface
                     : "transparent"
-                  : "rgba(243, 244, 246, 0.82)";
+                  : isTool
+                    ? aiWebComponentTokens.colorSecondaryAccentSoft
+                    : aiWebComponentTokens.colorSurfaceMuted;
               const bubbleBorder = isUser
                 ? "none"
                 : isAssistant
@@ -277,7 +279,10 @@ export function ChatPanel({
                     : "none"
                   : `1px solid ${messageBorderTone}`;
               const bubblePadding = isUser ? "13px 16px" : isAssistant ? (showAssistantSurface ? "13px 16px" : "2px 2px 2px 0") : "11px 13px";
-              const bubbleShadow = isUser ? "none" : isAssistant ? (showAssistantSurface ? aiWebComponentTokens.shadowSoft : "none") : aiWebComponentTokens.shadowSoft;
+              const bubbleShadow =
+                isUser || (isAssistant && showAssistantSurface)
+                  ? aiWebComponentTokens.shadowSoft
+                  : "none";
 
               if (isSystem) {
                 return (
@@ -294,7 +299,7 @@ export function ChatPanel({
                   >
                     <span
                       style={{
-                        background: aiWebComponentTokens.colorBorder,
+                        background: aiWebComponentTokens.colorBorderSubtle,
                         flex: 1,
                         height: 1,
                         minWidth: 24
@@ -314,7 +319,7 @@ export function ChatPanel({
                     </span>
                     <span
                       style={{
-                        background: aiWebComponentTokens.colorBorder,
+                        background: aiWebComponentTokens.colorBorderSubtle,
                         flex: 1,
                         height: 1,
                         minWidth: 24
@@ -345,18 +350,26 @@ export function ChatPanel({
                     style={{
                       alignItems: "center",
                       background: isUser
-                        ? aiWebComponentTokens.colorText
+                        ? aiWebComponentTokens.colorAccent
                         : isAssistant
-                          ? "rgba(85, 90, 255, 0.08)"
-                          : "rgba(255, 255, 255, 0.88)",
+                          ? aiWebComponentTokens.colorAccentSoft
+                          : aiWebComponentTokens.colorSurface,
                       border: isUser
                         ? "none"
                         : isAssistant
                           ? `1px solid ${chatBrandBorder}`
-                          : `1px solid ${aiWebComponentTokens.colorBorder}`,
-                      borderRadius: 999,
-                      color: isUser ? aiWebComponentTokens.colorSurface : isTool ? aiWebComponentTokens.colorSecondaryAccent : aiWebComponentTokens.colorText,
-                      boxShadow: isUser ? "none" : isAssistant ? "none" : aiWebComponentTokens.shadowSoft,
+                          : `1px solid ${
+                              isTool
+                                ? aiWebComponentTokens.colorSecondaryAccentBorder
+                                : aiWebComponentTokens.colorBorder
+                            }`,
+                      borderRadius: aiWebComponentTokens.radiusPill,
+                      color: isUser
+                        ? aiWebComponentTokens.colorTextInverse
+                        : isTool
+                          ? aiWebComponentTokens.colorSecondaryAccentStrong
+                          : aiWebComponentTokens.colorAccentStrong,
+                      boxShadow: isUser || isTool ? aiWebComponentTokens.shadowSoft : "none",
                       display: "inline-flex",
                       flexShrink: 0,
                       fontSize: isUser ? 11 : 10,
@@ -387,7 +400,7 @@ export function ChatPanel({
                         border: bubbleBorder,
                         borderRadius: isUser ? 18 : aiWebComponentTokens.radius,
                         boxShadow: bubbleShadow,
-                        color: isUser ? aiWebComponentTokens.colorSurface : aiWebComponentTokens.colorText,
+                        color: isUser ? aiWebComponentTokens.colorTextInverse : aiWebComponentTokens.colorText,
                         minWidth: 0,
                         padding: bubblePadding,
                         width: "100%",
@@ -409,7 +422,7 @@ export function ChatPanel({
                           {defaultTitle ? (
                             <div
                               style={{
-                                color: isUser ? "rgba(255, 255, 255, 0.72)" : roleLabelColors[message.role],
+                                color: isUser ? aiWebComponentTokens.colorTextInverseSubtle : roleLabelColors[message.role],
                                 flex: "1 1 120px",
                                 fontSize: 11,
                                 fontWeight: 700,
@@ -435,7 +448,7 @@ export function ChatPanel({
                         {message.description ? (
                           <div
                             style={{
-                              color: isUser ? "rgba(255, 255, 255, 0.78)" : aiWebComponentTokens.colorTextSubtle,
+                              color: isUser ? aiWebComponentTokens.colorTextInverseSubtle : aiWebComponentTokens.colorTextSubtle,
                               fontSize: 12,
                               fontWeight: 500,
                               lineHeight: 1.55,
@@ -448,7 +461,7 @@ export function ChatPanel({
                         ) : null}
                         <div
                           style={{
-                            color: isUser ? aiWebComponentTokens.colorSurface : aiWebComponentTokens.colorText,
+                            color: isUser ? aiWebComponentTokens.colorTextInverse : aiWebComponentTokens.colorText,
                             fontSize: 14,
                             lineHeight: isAssistant && !showAssistantSurface ? 1.78 : 1.7,
                             minWidth: 0,
@@ -462,7 +475,7 @@ export function ChatPanel({
                         {(message.meta || renderMessageMeta) ? (
                           <div
                             style={{
-                              color: isUser ? "rgba(255, 255, 255, 0.6)" : aiWebComponentTokens.colorMuted,
+                              color: isUser ? aiWebComponentTokens.colorTextInverseMuted : aiWebComponentTokens.colorMuted,
                               fontSize: 11,
                               letterSpacing: "0.01em",
                               minWidth: 0,

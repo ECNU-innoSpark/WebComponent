@@ -68,7 +68,8 @@ const buttonStyle = {
 
 const activeButtonStyle = {
   background: aiWebComponentTokens.colorSurface,
-  color: aiWebComponentTokens.colorText
+  boxShadow: aiWebComponentTokens.shadowSoft,
+  color: aiWebComponentTokens.colorAccentStrong
 } satisfies CSSProperties;
 
 const disabledButtonStyle = {

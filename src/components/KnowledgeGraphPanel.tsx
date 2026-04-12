@@ -94,11 +94,11 @@ const knowledgeGraphNodeTypes = {
 const categoryTints = [
   {
     background: aiWebComponentTokens.colorAccentSoft,
-    text: aiWebComponentTokens.colorAccent
+    text: aiWebComponentTokens.colorAccentStrong
   },
   {
     background: aiWebComponentTokens.colorSecondaryAccentSoft,
-    text: aiWebComponentTokens.colorSecondaryAccent
+    text: aiWebComponentTokens.colorSecondaryAccentStrong
   },
   {
     background: aiWebComponentTokens.colorSuccessSoft,
@@ -106,7 +106,7 @@ const categoryTints = [
   },
   {
     background: aiWebComponentTokens.colorWarningSoft,
-    text: "#b7791f"
+    text: aiWebComponentTokens.colorWarningStrong
   }
 ] as const;
 
@@ -302,7 +302,7 @@ export function KnowledgeGraphPanel({
               style={{
                 background: aiWebComponentTokens.colorSurface,
                 border: `1px solid ${aiWebComponentTokens.colorBorder}`,
-                borderRadius: 8,
+                borderRadius: aiWebComponentTokens.radiusSmall,
                 display: "grid",
                 overflow: "hidden"
               }}
@@ -318,8 +318,7 @@ export function KnowledgeGraphPanel({
               </div>
               <div
                 style={{
-                  background:
-                    "linear-gradient(180deg, rgba(244, 246, 255, 0.88) 0%, rgba(255, 255, 255, 0.98) 100%)",
+                  background: `linear-gradient(180deg, ${aiWebComponentTokens.colorSurfaceAccent} 0%, ${aiWebComponentTokens.colorSurface} 100%)`,
                   minHeight: 440
                 }}
               >
@@ -341,7 +340,7 @@ export function KnowledgeGraphPanel({
                   proOptions={{ hideAttribution: true }}
                 >
                   <Background
-                    color={aiWebComponentTokens.colorBorder}
+                    color={aiWebComponentTokens.colorBorderSubtle}
                     gap={20}
                     size={1}
                     variant={BackgroundVariant.Dots}
@@ -362,12 +361,12 @@ export function KnowledgeGraphPanel({
             <div style={{ display: "grid", gap: 16 }}>
               <div
                 style={{
-                  background: aiWebComponentTokens.colorSurface,
-                  border: `1px solid ${aiWebComponentTokens.colorBorder}`,
-                  borderRadius: 8,
-                  display: "grid",
-                  overflow: "hidden"
-                }}
+                background: aiWebComponentTokens.colorSurface,
+                border: `1px solid ${aiWebComponentTokens.colorBorder}`,
+                borderRadius: aiWebComponentTokens.radiusSmall,
+                display: "grid",
+                overflow: "hidden"
+              }}
               >
                 <div
                   style={{
@@ -408,12 +407,12 @@ export function KnowledgeGraphPanel({
 
               <div
                 style={{
-                  background: aiWebComponentTokens.colorSurface,
-                  border: `1px solid ${aiWebComponentTokens.colorBorder}`,
-                  borderRadius: 8,
-                  display: "grid",
-                  overflow: "hidden"
-                }}
+                background: aiWebComponentTokens.colorSurface,
+                border: `1px solid ${aiWebComponentTokens.colorBorder}`,
+                borderRadius: aiWebComponentTokens.radiusSmall,
+                display: "grid",
+                overflow: "hidden"
+              }}
               >
                 <div
                   style={{
@@ -470,8 +469,8 @@ export function KnowledgeGraphPanel({
                 <div
                   style={{
                     background: aiWebComponentTokens.colorWarningSoft,
-                    border: `1px solid #f7de95`,
-                    borderRadius: 8,
+                    border: `1px solid ${aiWebComponentTokens.colorWarningBorder}`,
+                    borderRadius: aiWebComponentTokens.radiusSmall,
                     color: aiWebComponentTokens.colorTextSubtle,
                     fontSize: 12,
                     lineHeight: 1.6,

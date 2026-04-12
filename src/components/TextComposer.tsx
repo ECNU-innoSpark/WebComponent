@@ -54,7 +54,7 @@ export function TextComposer({
 }
 
 const shellStyle = {
-  background: "linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #ffffff 18%)",
+  background: `linear-gradient(180deg, rgba(247, 248, 255, 0) 0%, ${aiWebComponentTokens.colorSurface} 22%)`,
   borderTop: `1px solid ${aiWebComponentTokens.colorBorder}`,
   display: "grid",
   gap: 10,
