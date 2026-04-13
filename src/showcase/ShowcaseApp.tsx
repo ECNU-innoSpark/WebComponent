@@ -55,6 +55,10 @@ type LayoutBranch = {
 };
 
 type LayoutNode = LayoutLeaf | LayoutBranch;
+type LayoutPathEntry = {
+  branch: LayoutBranch;
+  side: "first" | "second";
+};
 
 const widgetDefinitions = [
   {
@@ -143,6 +147,104 @@ function collectLayoutLeaves(node: LayoutNode): LayoutLeaf[] {
   return [...collectLayoutLeaves(node.first), ...collectLayoutLeaves(node.second)];
 }
 
+function getSplitDirection(placement: SplitPlacement): SplitDirection {
+  return placement === "left" || placement === "right" ? "row" : "column";
+}
+
+function shouldInsertBefore(placement: SplitPlacement) {
+  return placement === "left" || placement === "top";
+}
+
+function nodeContainsLeaf(node: LayoutNode, targetId: string): boolean {
+  if (isLayoutLeaf(node)) {
+    return node.id === targetId;
+  }
+
+  return nodeContainsLeaf(node.first, targetId) || nodeContainsLeaf(node.second, targetId);
+}
+
+function flattenAxisChildren(node: LayoutNode, direction: SplitDirection): LayoutNode[] {
+  if (isLayoutLeaf(node) || node.direction !== direction) {
+    return [node];
+  }
+
+  return [
+    ...flattenAxisChildren(node.first, direction),
+    ...flattenAxisChildren(node.second, direction)
+  ];
+}
+
+function buildEqualSplitTree(
+  children: LayoutNode[],
+  direction: SplitDirection,
+  createSplitId: () => string
+): LayoutNode {
+  if (children.length === 1) {
+    return children[0]!;
+  }
+
+  const [first, ...rest] = children;
+
+  return {
+    direction,
+    first: first!,
+    id: createSplitId(),
+    ratio: 1 / children.length,
+    second: buildEqualSplitTree(rest, direction, createSplitId),
+    type: "split"
+  };
+}
+
+function findPathToLeaf(
+  node: LayoutNode,
+  targetId: string,
+  path: LayoutPathEntry[] = []
+): LayoutPathEntry[] | null {
+  if (isLayoutLeaf(node)) {
+    return node.id === targetId ? path : null;
+  }
+
+  return (
+    findPathToLeaf(node.first, targetId, [...path, { branch: node, side: "first" }]) ??
+    findPathToLeaf(node.second, targetId, [...path, { branch: node, side: "second" }])
+  );
+}
+
+function replaceNodeById(node: LayoutNode, targetId: string, nextNode: LayoutNode): LayoutNode {
+  if (node.id === targetId) {
+    return nextNode;
+  }
+
+  if (isLayoutLeaf(node)) {
+    return node;
+  }
+
+  return {
+    ...node,
+    first: replaceNodeById(node.first, targetId, nextNode),
+    second: replaceNodeById(node.second, targetId, nextNode)
+  };
+}
+
+function findContiguousAxisBranch(
+  path: LayoutPathEntry[],
+  direction: SplitDirection
+): LayoutBranch | null {
+  let axis: LayoutBranch | null = null;
+
+  for (let index = path.length - 1; index >= 0; index -= 1) {
+    const entry = path[index]!;
+
+    if (entry.branch.direction !== direction) {
+      break;
+    }
+
+    axis = entry.branch;
+  }
+
+  return axis;
+}
+
 function findLeafById(node: LayoutNode, id: string): LayoutLeaf | null {
   if (isLayoutLeaf(node)) {
     return node.id === id ? node : null;
@@ -171,8 +273,8 @@ function splitLeafNode(
       return node;
     }
 
-    const direction: SplitDirection = placement === "left" || placement === "right" ? "row" : "column";
-    const insertBefore = placement === "left" || placement === "top";
+    const direction = getSplitDirection(placement);
+    const insertBefore = shouldInsertBefore(placement);
 
     return {
       direction,
@@ -189,6 +291,44 @@ function splitLeafNode(
     first: splitLeafNode(node.first, targetId, newLeaf, placement, splitId),
     second: splitLeafNode(node.second, targetId, newLeaf, placement, splitId)
   };
+}
+
+function insertLeafRelativeToTarget(
+  node: LayoutNode,
+  targetId: string,
+  newLeaf: LayoutLeaf,
+  placement: SplitPlacement,
+  createSplitId: () => string
+): LayoutNode {
+  const direction = getSplitDirection(placement);
+  const insertBefore = shouldInsertBefore(placement);
+  const path = findPathToLeaf(node, targetId);
+
+  if (!path) {
+    return node;
+  }
+
+  const matchingAxis = findContiguousAxisBranch(path, direction);
+
+  if (!matchingAxis) {
+    return splitLeafNode(node, targetId, newLeaf, placement, createSplitId());
+  }
+
+  const axisChildren = flattenAxisChildren(matchingAxis, direction);
+  const targetIndex = axisChildren.findIndex((child) => nodeContainsLeaf(child, targetId));
+
+  if (targetIndex === -1) {
+    return node;
+  }
+
+  const nextChildren = [...axisChildren];
+  nextChildren.splice(insertBefore ? targetIndex : targetIndex + 1, 0, newLeaf);
+
+  return replaceNodeById(
+    node,
+    matchingAxis.id,
+    buildEqualSplitTree(nextChildren, direction, createSplitId)
+  );
 }
 
 function removeLeafNode(node: LayoutNode, targetId: string): LayoutNode | null {
@@ -242,7 +382,7 @@ function moveLeafNode(
   draggedId: string,
   targetId: string,
   placement: SplitPlacement,
-  splitId: string
+  createSplitId: () => string
 ): LayoutNode {
   if (draggedId === targetId) {
     return node;
@@ -260,12 +400,12 @@ function moveLeafNode(
     return node;
   }
 
-  return splitLeafNode(reducedTree, targetId, draggedLeaf, placement, splitId);
+  return insertLeafRelativeToTarget(reducedTree, targetId, draggedLeaf, placement, createSplitId);
 }
 
 function wrapRootNode(node: LayoutNode, incomingLeaf: LayoutLeaf, placement: SplitPlacement, splitId: string): LayoutNode {
-  const direction: SplitDirection = placement === "left" || placement === "right" ? "row" : "column";
-  const insertBefore = placement === "left" || placement === "top";
+  const direction = getSplitDirection(placement);
+  const insertBefore = shouldInsertBefore(placement);
 
   return {
     direction,
@@ -277,7 +417,31 @@ function wrapRootNode(node: LayoutNode, incomingLeaf: LayoutLeaf, placement: Spl
   };
 }
 
-function moveLeafToRoot(node: LayoutNode, draggedId: string, placement: SplitPlacement, splitId: string): LayoutNode {
+function insertLeafAtRoot(
+  node: LayoutNode,
+  incomingLeaf: LayoutLeaf,
+  placement: SplitPlacement,
+  createSplitId: () => string
+): LayoutNode {
+  const direction = getSplitDirection(placement);
+  const insertBefore = shouldInsertBefore(placement);
+
+  if (isLayoutLeaf(node) || node.direction !== direction) {
+    return wrapRootNode(node, incomingLeaf, placement, createSplitId());
+  }
+
+  const rootChildren = flattenAxisChildren(node, direction);
+  const nextChildren = insertBefore ? [incomingLeaf, ...rootChildren] : [...rootChildren, incomingLeaf];
+
+  return buildEqualSplitTree(nextChildren, direction, createSplitId);
+}
+
+function moveLeafToRoot(
+  node: LayoutNode,
+  draggedId: string,
+  placement: SplitPlacement,
+  createSplitId: () => string
+): LayoutNode {
   const draggedLeaf = findLeafById(node, draggedId);
 
   if (!draggedLeaf) {
@@ -290,7 +454,7 @@ function moveLeafToRoot(node: LayoutNode, draggedId: string, placement: SplitPla
     return node;
   }
 
-  return wrapRootNode(reducedTree, draggedLeaf, placement, splitId);
+  return insertLeafAtRoot(reducedTree, draggedLeaf, placement, createSplitId);
 }
 
 function getDropPlacement(clientX: number, clientY: number, rect: DOMRect): SplitPlacement {
@@ -1055,6 +1219,7 @@ export default function ShowcaseApp() {
   const previewCanvasRef = useRef<HTMLDivElement>(null);
   const nextIdRef = useRef(3);
   const activeDockTargetRef = useRef<DockTarget | null>(null);
+  const createSplitId = () => `split-${nextIdRef.current++}`;
 
   const selectedDefinition =
     widgetDefinitions.find((definition) => definition.kind === activeCatalogKind) ?? widgetDefinitions[0];
@@ -1085,7 +1250,7 @@ export default function ShowcaseApp() {
     }
 
     const targetId = selectedLayoutId || findFirstLeafId(layoutRoot);
-    setLayoutRoot(splitLeafNode(layoutRoot, targetId, nextLeaf, placement, `split-${nextIdRef.current++}`));
+    setLayoutRoot(insertLeafRelativeToTarget(layoutRoot, targetId, nextLeaf, placement, createSplitId));
     setSelectedLayoutId(nextLeaf.id);
   }
 
@@ -1097,7 +1262,7 @@ export default function ShowcaseApp() {
         return nextLeaf;
       }
 
-      return splitLeafNode(current, targetId, nextLeaf, placement, `split-${nextIdRef.current++}`);
+      return insertLeafRelativeToTarget(current, targetId, nextLeaf, placement, createSplitId);
     });
     setSelectedLayoutId(nextLeaf.id);
     setDraggingWidgetKind(null);
@@ -1111,7 +1276,7 @@ export default function ShowcaseApp() {
     }
 
     setLayoutRoot((current) =>
-      current ? moveLeafNode(current, draggedId, targetId, placement, `split-${nextIdRef.current++}`) : current
+      current ? moveLeafNode(current, draggedId, targetId, placement, createSplitId) : current
     );
     setSelectedLayoutId(draggedId);
     setDraggingPaneId(null);
@@ -1123,7 +1288,7 @@ export default function ShowcaseApp() {
 
   function moveLayoutPaneToRoot(draggedId: string, placement: SplitPlacement) {
     setLayoutRoot((current) =>
-      current ? moveLeafToRoot(current, draggedId, placement, `split-${nextIdRef.current++}`) : current
+      current ? moveLeafToRoot(current, draggedId, placement, createSplitId) : current
     );
     setSelectedLayoutId(draggedId);
     setDraggingPaneId(null);
@@ -1135,7 +1300,7 @@ export default function ShowcaseApp() {
 
   function dropAtRoot(placement: SplitPlacement) {
     if (draggingPaneId && layoutRoot) {
-      setLayoutRoot(moveLeafToRoot(layoutRoot, draggingPaneId, placement, `split-${nextIdRef.current++}`));
+      setLayoutRoot(moveLeafToRoot(layoutRoot, draggingPaneId, placement, createSplitId));
       setSelectedLayoutId(draggingPaneId);
       setDraggingPaneId(null);
       setDropHint(null);
@@ -1145,7 +1310,7 @@ export default function ShowcaseApp() {
 
     if (draggingWidgetKind) {
       const nextLeaf = createLeaf(`layout-${nextIdRef.current++}`, draggingWidgetKind);
-      setLayoutRoot((current) => (current ? wrapRootNode(current, nextLeaf, placement, `split-${nextIdRef.current++}`) : nextLeaf));
+      setLayoutRoot((current) => (current ? insertLeafAtRoot(current, nextLeaf, placement, createSplitId) : nextLeaf));
       setSelectedLayoutId(nextLeaf.id);
       setDraggingWidgetKind(null);
       setDropHint(null);
@@ -1320,10 +1485,10 @@ export default function ShowcaseApp() {
             </button>
           </div>
         </div>
-        <p className="hero-summary">当前工作区支持控件预览与分栏布局编辑，布局模式会像 tmux 一样先占满空间，再通过分割窗格继续扩展。</p>
+        <p className="hero-summary">当前工作区支持控件预览与分栏布局编辑。布局画布会先占满整栏，再按行或列继续切分；同一方向新增时会自动把当前行列重新均分。</p>
         <div className="hero-meta">
           <span>已沉淀控件 {widgetDefinitions.length}</span>
-          <span>支持拖拽预览 / 分栏排布 / 比例调节</span>
+          <span>支持拖拽预览 / 整栏补齐 / 等分分栏 / 比例调节</span>
         </div>
       </section>
 
@@ -1500,7 +1665,7 @@ export default function ShowcaseApp() {
                 <div className="editor-empty-state layout-empty-state">
                   {renderIcon(informationCircleIcon, "info", "visual", "neutral")}
                   <strong>先放入第一个控件</strong>
-                  <p>第一个控件会自动占满整个空间。后续继续拖入或点击“右分栏 / 下分栏”时，会基于当前窗格继续切分。</p>
+                  <p>第一个控件会自动占满整个空间。后续继续拖入或点击“右分栏 / 下分栏”时，会优先把当前行列补齐，并按同方向自动等分。</p>
                 </div>
               ) : (
                 <SplitWorkspace
@@ -1562,13 +1727,13 @@ export default function ShowcaseApp() {
                     <strong>Split</strong>
                   </div>
                 </div>
-                <p>当前布局会始终铺满整个工作区。新增控件时会从选中窗格继续切分，拖动分割条可调节区域比例。</p>
+                <p>当前布局会始终铺满整个工作区。新增控件时会优先并入当前行或列并重新等分；如果方向不同，才会基于当前窗格继续切分。拖动分割条后仍可手动微调比例。</p>
               </div>
             ) : (
               <div className="inspector-card is-empty">
                 {renderIcon(informationCircleIcon, "info", "visual", "neutral")}
                 <strong>还没有布局内容</strong>
-                <p>先把一个控件放进画布，它会自动占满。之后再继续分栏扩展。</p>
+                <p>先把一个控件放进画布，它会自动占满。之后继续添加时，当前行列会优先被补齐并保持等分。</p>
               </div>
             )}
           </aside>

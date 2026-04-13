@@ -45,12 +45,13 @@ export function SegmentedControl({ value, items, onChange, ariaLabel }: Segmente
 
 const rootStyle = {
   alignItems: "center",
-  background: aiWebComponentTokens.colorSurfaceMuted,
+  background: aiWebComponentTokens.colorSurfaceRaised,
   border: `1px solid ${aiWebComponentTokens.colorBorder}`,
   borderRadius: aiWebComponentTokens.radiusPill,
   display: "inline-flex",
   gap: 4,
-  padding: 4
+  padding: 4,
+  boxShadow: aiWebComponentTokens.shadowSoft
 } satisfies CSSProperties;
 
 const buttonStyle = {
@@ -67,7 +68,8 @@ const buttonStyle = {
 } satisfies CSSProperties;
 
 const activeButtonStyle = {
-  background: aiWebComponentTokens.colorSurface,
+  background: `linear-gradient(180deg, ${aiWebComponentTokens.colorAccentSoft} 0%, ${aiWebComponentTokens.colorSurface} 100%)`,
+  border: `1px solid ${aiWebComponentTokens.colorAccentBorder}`,
   boxShadow: aiWebComponentTokens.shadowSoft,
   color: aiWebComponentTokens.colorAccentStrong
 } satisfies CSSProperties;

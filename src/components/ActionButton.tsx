@@ -35,7 +35,7 @@ export function ActionButton({
 
 const baseButtonStyle = {
   alignItems: "center",
-  background: aiWebComponentTokens.colorSurface,
+  background: aiWebComponentTokens.colorSurfaceRaised,
   border: `1px solid ${aiWebComponentTokens.colorBorder}`,
   borderRadius: aiWebComponentTokens.radiusPill,
   color: aiWebComponentTokens.colorText,
@@ -46,8 +46,8 @@ const baseButtonStyle = {
   gap: 6,
   justifyContent: "center",
   lineHeight: 1,
-  minHeight: 34,
-  padding: "8px 12px",
+  minHeight: 36,
+  padding: "8px 13px",
   whiteSpace: "nowrap"
 } satisfies CSSProperties;
 
@@ -64,8 +64,8 @@ function resolveVariantStyle(
 
   if (variant === "primary") {
     return {
-      background: aiWebComponentTokens.colorAccent,
-      borderColor: aiWebComponentTokens.colorAccent,
+      background: `linear-gradient(135deg, ${aiWebComponentTokens.colorAccent} 0%, ${aiWebComponentTokens.colorSecondaryAccent} 100%)`,
+      borderColor: "transparent",
       boxShadow: aiWebComponentTokens.shadowSoft,
       color: aiWebComponentTokens.colorTextInverse
     };

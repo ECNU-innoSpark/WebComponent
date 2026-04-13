@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { PanelStateBlock } from "./shared/PanelStateBlock";
 import {
+  createPanelCalloutStyle,
+  createPanelSectionStyle,
   createIconFrameStyle,
   createToneBadgeStyle,
   panelBodyStyle,
@@ -10,6 +12,7 @@ import {
   panelSurfaceStyle,
   panelTitleRowStyle,
   panelTitleStyle,
+  sectionLabelStyle,
   stackedMetaStyle
 } from "../styles/panelStyles";
 import { aiWebComponentTokens } from "../styles/tokens";
@@ -117,33 +120,78 @@ export function FilePreviewPanel({
           />
         ) : null}
         {!showLoading && !showEmpty && !showError ? (
-          <div
-            style={{
-              background: aiWebComponentTokens.colorSurfaceRaised,
-              border: `1px solid ${aiWebComponentTokens.colorBorder}`,
-              borderRadius: aiWebComponentTokens.radiusSmall,
-              minHeight: 280,
-              overflow: "auto",
-              padding: 14
-            }}
-          >
-            {isPrimitiveContent ? (
-              <pre
+          <div style={{ display: "grid", gap: 12 }}>
+            <div style={createPanelCalloutStyle("accent")}>
+              <div style={{ ...sectionLabelStyle, marginBottom: 8 }}>Source Context</div>
+              <div style={{ color: aiWebComponentTokens.colorText, fontSize: 15, fontWeight: 700, marginBottom: 6 }}>
+                {fileName ?? "当前尚未绑定来源文件"}
+              </div>
+              <div style={{ color: aiWebComponentTokens.colorTextSubtle, fontSize: 13, lineHeight: 1.6 }}>
+                当前面板适合承接文档摘录、JSON 配置、课堂素材片段与结构化输出，保持“来源文件 + 内容预览”同屏可读。
+              </div>
+            </div>
+
+            <div
+              style={{
+                ...createPanelSectionStyle("neutral"),
+                display: "grid",
+                gap: 0,
+                minHeight: 280,
+                overflow: "hidden"
+              }}
+            >
+              <div
                 style={{
-                  color: aiWebComponentTokens.colorText,
-                  fontFamily:
-                    "ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace",
-                  fontSize: 13,
-                  lineHeight: 1.7,
-                  margin: 0,
-                  whiteSpace: "pre-wrap"
+                  alignItems: "center",
+                  background: aiWebComponentTokens.colorSurfaceMuted,
+                  borderBottom: `1px solid ${aiWebComponentTokens.colorBorder}`,
+                  display: "flex",
+                  gap: 10,
+                  justifyContent: "space-between",
+                  padding: "10px 12px"
                 }}
               >
-                {content}
-              </pre>
-            ) : (
-              content
-            )}
+                <div style={{ display: "grid", gap: 3 }}>
+                  <span style={sectionLabelStyle}>Preview Surface</span>
+                  <span style={{ color: aiWebComponentTokens.colorTextSubtle, fontSize: 12 }}>
+                    适合放代码、文档内容、AI 中间产物与结构化摘录
+                  </span>
+                </div>
+                <div style={stackedMetaStyle}>
+                  <span style={createToneBadgeStyle(fileName ? "accent" : "neutral")}>
+                    {fileName ?? "未选择文件"}
+                  </span>
+                  <span style={createToneBadgeStyle("secondary")}>{language}</span>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  background: aiWebComponentTokens.colorSurfaceRaised,
+                  minHeight: 0,
+                  overflow: "auto",
+                  padding: 14
+                }}
+              >
+                {isPrimitiveContent ? (
+                  <pre
+                    style={{
+                      color: aiWebComponentTokens.colorText,
+                      fontFamily:
+                        "ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace",
+                      fontSize: 13,
+                      lineHeight: 1.7,
+                      margin: 0,
+                      whiteSpace: "pre-wrap"
+                    }}
+                  >
+                    {content}
+                  </pre>
+                ) : (
+                  content
+                )}
+              </div>
+            </div>
           </div>
         ) : null}
       </div>

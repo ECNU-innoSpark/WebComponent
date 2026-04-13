@@ -43,25 +43,26 @@ const tonePalettes: Record<PanelTone, TonePalette> = {
 };
 
 export const panelSurfaceStyle = {
-  background: aiWebComponentTokens.colorSurface,
+  background: `linear-gradient(180deg, ${aiWebComponentTokens.colorSurface} 0%, ${aiWebComponentTokens.colorSurfaceRaised} 100%)`,
   border: `1px solid ${aiWebComponentTokens.colorBorder}`,
   borderRadius: aiWebComponentTokens.radius,
-  boxShadow: "none",
+  boxShadow: aiWebComponentTokens.shadowSoft,
   overflow: "hidden"
 } satisfies CSSProperties;
 
 export const panelHeaderStyle = {
   alignItems: "start",
+  background: `linear-gradient(180deg, rgba(85, 90, 255, 0.08) 0%, rgba(255, 255, 255, 0.96) 68%)`,
   borderBottom: `1px solid ${aiWebComponentTokens.colorBorder}`,
   display: "flex",
   gap: 16,
   justifyContent: "space-between",
-  padding: "14px 16px"
+  padding: "16px 18px 15px"
 } satisfies CSSProperties;
 
 export const panelHeaderMainStyle = {
   display: "grid",
-  gap: 4
+  gap: 6
 } satisfies CSSProperties;
 
 export const panelTitleRowStyle = {
@@ -72,21 +73,23 @@ export const panelTitleRowStyle = {
 
 export const panelTitleStyle = {
   color: aiWebComponentTokens.colorText,
-  fontSize: 16,
+  fontSize: 17,
   fontWeight: 700,
-  letterSpacing: "-0.01em"
+  letterSpacing: "-0.015em",
+  lineHeight: 1.3
 } satisfies CSSProperties;
 
 export const panelSubtitleStyle = {
-  color: aiWebComponentTokens.colorMuted,
+  color: aiWebComponentTokens.colorTextSubtle,
   fontSize: 13,
-  lineHeight: 1.5
+  lineHeight: 1.6,
+  maxWidth: 620
 } satisfies CSSProperties;
 
 export const panelBodyStyle = {
   display: "grid",
-  gap: 14,
-  padding: 16
+  gap: 16,
+  padding: 18
 } satisfies CSSProperties;
 
 export const sectionLabelStyle = {
@@ -125,13 +128,42 @@ export function createStateCardStyle(tone: PanelTone = "neutral"): CSSProperties
   const palette = tonePalettes[tone];
 
   return {
-    background: palette.background,
+    background: `linear-gradient(180deg, ${palette.background} 0%, ${aiWebComponentTokens.colorSurface} 100%)`,
     border: `1px solid ${palette.border}`,
     borderRadius: aiWebComponentTokens.radiusSmall,
     color: palette.text,
     display: "grid",
-    gap: 6,
-    padding: "16px"
+    gap: 10,
+    padding: "16px",
+    boxShadow: aiWebComponentTokens.shadowSoft
+  };
+}
+
+export function createPanelSectionStyle(tone: PanelTone = "neutral"): CSSProperties {
+  const palette = tonePalettes[tone];
+
+  return {
+    background:
+      tone === "neutral"
+        ? aiWebComponentTokens.colorSurface
+        : `linear-gradient(180deg, ${palette.background} 0%, ${aiWebComponentTokens.colorSurface} 100%)`,
+    border: `1px solid ${palette.border}`,
+    borderRadius: aiWebComponentTokens.radiusSmall,
+    boxShadow: aiWebComponentTokens.shadowSoft
+  };
+}
+
+export function createPanelCalloutStyle(tone: PanelTone = "accent"): CSSProperties {
+  const palette = tonePalettes[tone];
+
+  return {
+    background: `linear-gradient(180deg, ${palette.background} 0%, ${aiWebComponentTokens.colorSurface} 100%)`,
+    border: `1px solid ${palette.border}`,
+    borderLeft: `3px solid ${palette.text}`,
+    borderRadius: aiWebComponentTokens.radiusSmall,
+    boxShadow: aiWebComponentTokens.shadowSoft,
+    color: aiWebComponentTokens.colorTextSubtle,
+    padding: "14px 16px"
   };
 }
 

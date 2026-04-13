@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { PanelStateBlock } from "./shared/PanelStateBlock";
 import {
+  createPanelCalloutStyle,
   createGhostButtonStyle,
   createIconFrameStyle,
   createSelectableCardStyle,
@@ -11,7 +12,8 @@ import {
   panelSubtitleStyle,
   panelSurfaceStyle,
   panelTitleRowStyle,
-  panelTitleStyle
+  panelTitleStyle,
+  sectionLabelStyle
 } from "../styles/panelStyles";
 import { aiWebComponentTokens } from "../styles/tokens";
 
@@ -95,10 +97,11 @@ export function FileManagerPanel({
   const showError = status === "error";
   const showEmpty = nodes.length === 0 && status === "idle";
   const showLoading = nodes.length === 0 && status === "loading";
+  const selectedNode = nodes.find((node) => node.path === selectedPath);
   const surfaceStyle = hideHeader
     ? { ...panelSurfaceStyle, background: "transparent", border: "none", borderRadius: 0 }
     : panelSurfaceStyle;
-  const bodyStyle = hideHeader ? { ...panelBodyStyle, gap: 8, padding: 0 } : { ...panelBodyStyle, gap: 10 };
+  const bodyStyle = hideHeader ? { ...panelBodyStyle, gap: 10, padding: 0 } : { ...panelBodyStyle, gap: 12 };
 
   return (
     <section style={surfaceStyle}>
@@ -176,6 +179,18 @@ export function FileManagerPanel({
             ))}
           </div>
         ) : null}
+        <div style={createPanelCalloutStyle("secondary")}>
+          <div style={{ ...sectionLabelStyle, marginBottom: 8 }}>Directory Context</div>
+          <div style={{ color: aiWebComponentTokens.colorText, fontSize: 15, fontWeight: 700, marginBottom: 6 }}>
+            {currentPath}
+          </div>
+          <div style={{ color: aiWebComponentTokens.colorTextSubtle, fontSize: 13, lineHeight: 1.6 }}>
+            当前目录下共有 {nodes.length} 个项目。
+            {selectedNode
+              ? ` 已聚焦 ${selectedNode.name}，可以继续查看来源、预览内容或执行后续动作。`
+              : " 适合在这里快速浏览资料、选择文件并衔接预览面板。"}
+          </div>
+        </div>
         {showError ? (
           <PanelStateBlock
             action={errorAction}
@@ -222,10 +237,23 @@ export function FileManagerPanel({
                 }`,
                 cursor: onSelectNode ? "pointer" : "default",
                 display: "grid",
-                gap: 6,
-                padding: "10px 12px"
+                gap: 8,
+                padding: "12px 13px"
               }}
             >
+              <div
+                style={{
+                  alignItems: "center",
+                  display: "flex",
+                  gap: 8,
+                  justifyContent: "space-between"
+                }}
+              >
+                <span style={sectionLabelStyle}>{node.kind === "directory" ? "Directory" : "File"}</span>
+                {node.meta ? (
+                  <span style={{ color: aiWebComponentTokens.colorMuted, fontSize: 11 }}>{node.meta}</span>
+                ) : null}
+              </div>
               <div
                 style={{
                   alignItems: "start",
@@ -258,10 +286,9 @@ export function FileManagerPanel({
                 ) : null}
               </div>
               {node.description ? (
-                <span style={{ color: aiWebComponentTokens.colorMuted, fontSize: 14 }}>{node.description}</span>
-              ) : null}
-              {node.meta ? (
-                <span style={{ color: aiWebComponentTokens.colorMuted, fontSize: 12 }}>{node.meta}</span>
+                <span style={{ color: aiWebComponentTokens.colorTextSubtle, fontSize: 13, lineHeight: 1.6 }}>
+                  {node.description}
+                </span>
               ) : null}
               <div
                 onClick={(event) => {
@@ -297,9 +324,10 @@ export function FileManagerPanel({
 }
 
 const actionButtonStyle = {
-  background: aiWebComponentTokens.colorSurface,
+  background: aiWebComponentTokens.colorSurfaceRaised,
   border: `1px solid ${aiWebComponentTokens.colorBorder}`,
-  borderRadius: 8,
+  borderRadius: aiWebComponentTokens.radiusSmall,
+  boxShadow: aiWebComponentTokens.shadowSoft,
   color: aiWebComponentTokens.colorText,
   cursor: "pointer",
   fontSize: 12,

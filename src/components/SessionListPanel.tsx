@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { PanelStateBlock } from "./shared/PanelStateBlock";
 import {
+  createPanelCalloutStyle,
   createIconFrameStyle,
   createSelectableCardStyle,
   createToneBadgeStyle,
@@ -10,7 +11,8 @@ import {
   panelSubtitleStyle,
   panelSurfaceStyle,
   panelTitleRowStyle,
-  panelTitleStyle
+  panelTitleStyle,
+  sectionLabelStyle
 } from "../styles/panelStyles";
 import { aiWebComponentTokens } from "../styles/tokens";
 
@@ -69,10 +71,11 @@ export function SessionListPanel({
   const showError = status === "error";
   const showEmpty = items.length === 0 && status === "idle";
   const showLoading = items.length === 0 && status === "loading";
+  const activeItem = items.find((item) => item.id === activeItemId);
   const surfaceStyle = hideHeader
     ? { ...panelSurfaceStyle, background: "transparent", border: "none", borderRadius: 0 }
     : panelSurfaceStyle;
-  const bodyStyle = hideHeader ? { ...panelBodyStyle, gap: 8, padding: 0 } : { ...panelBodyStyle, gap: 10 };
+  const bodyStyle = hideHeader ? { ...panelBodyStyle, gap: 10, padding: 0 } : { ...panelBodyStyle, gap: 12 };
 
   return (
     <section style={surfaceStyle}>
@@ -91,6 +94,23 @@ export function SessionListPanel({
       ) : null}
 
       <div style={bodyStyle}>
+        {activeItem ? (
+          <div style={createPanelCalloutStyle("accent")}>
+            <div style={{ ...sectionLabelStyle, marginBottom: 8 }}>Current Session</div>
+            <div style={{ color: aiWebComponentTokens.colorText, fontSize: 15, fontWeight: 700, marginBottom: 6 }}>
+              {activeItem.title}
+            </div>
+            <div style={{ color: aiWebComponentTokens.colorTextSubtle, fontSize: 13, lineHeight: 1.6 }}>
+              {activeItem.description ?? "当前焦点会话适合继续补充上下文、查看来源并衔接后续操作。"}
+            </div>
+            {activeItem.meta ? (
+              <div style={{ color: aiWebComponentTokens.colorMuted, fontSize: 12, marginTop: 8 }}>
+                {activeItem.meta}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
         {showError ? (
           <PanelStateBlock
             action={errorAction}
@@ -135,9 +155,9 @@ export function SessionListPanel({
                   isActive ? aiWebComponentTokens.colorAccent : "transparent"
                 }`,
                 display: "grid",
-                gap: 6,
+                gap: 8,
                 opacity: item.disabled ? 0.6 : 1,
-                padding: "10px 12px"
+                padding: "12px 13px"
               }}
             >
               <button
@@ -148,12 +168,27 @@ export function SessionListPanel({
                   border: "none",
                   cursor: disabled ? "default" : "pointer",
                   display: "grid",
-                  gap: 6,
+                  gap: 8,
                   padding: 0,
                   textAlign: "left"
                 }}
                 type="button"
               >
+                <div
+                  style={{
+                    alignItems: "center",
+                    display: "flex",
+                    gap: 8,
+                    justifyContent: "space-between"
+                  }}
+                >
+                  <span style={sectionLabelStyle}>{isActive ? "Active Session" : "Session"}</span>
+                  {item.meta ? (
+                    <span style={{ color: aiWebComponentTokens.colorMuted, fontSize: 11 }}>
+                      {item.meta}
+                    </span>
+                  ) : null}
+                </div>
                 <div
                   style={{
                     alignItems: "start",
@@ -170,10 +205,9 @@ export function SessionListPanel({
                   ) : null}
                 </div>
                 {item.description ? (
-                  <span style={{ color: aiWebComponentTokens.colorMuted, fontSize: 14 }}>{item.description}</span>
-                ) : null}
-                {item.meta ? (
-                  <span style={{ color: aiWebComponentTokens.colorMuted, fontSize: 12 }}>{item.meta}</span>
+                  <span style={{ color: aiWebComponentTokens.colorTextSubtle, fontSize: 13, lineHeight: 1.6 }}>
+                    {item.description}
+                  </span>
                 ) : null}
               </button>
               {itemActions ? <div style={{ marginTop: 10 }}>{itemActions}</div> : null}

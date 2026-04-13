@@ -14,6 +14,8 @@ import {
 import "@xyflow/react/dist/style.css";
 import { PanelStateBlock } from "./shared/PanelStateBlock";
 import {
+  createPanelCalloutStyle,
+  createPanelSectionStyle,
   createIconFrameStyle,
   createToneBadgeStyle,
   panelBodyStyle,
@@ -248,16 +250,8 @@ export function KnowledgeGraphPanel({
 
       <div style={bodyStyle}>
         {summary ? (
-          <div
-            style={{
-              background: aiWebComponentTokens.colorSurface,
-              border: `1px solid ${aiWebComponentTokens.colorBorder}`,
-              borderLeft: `3px solid ${aiWebComponentTokens.colorAccent}`,
-              borderRadius: 8,
-              lineHeight: 1.6,
-              padding: "14px 16px"
-            }}
-          >
+          <div style={createPanelCalloutStyle("accent")}>
+            <div style={{ ...sectionLabelStyle, marginBottom: 8 }}>Insight Summary</div>
             {summary}
           </div>
         ) : null}
@@ -300,9 +294,7 @@ export function KnowledgeGraphPanel({
           >
             <div
               style={{
-                background: aiWebComponentTokens.colorSurface,
-                border: `1px solid ${aiWebComponentTokens.colorBorder}`,
-                borderRadius: aiWebComponentTokens.radiusSmall,
+                ...createPanelSectionStyle("neutral"),
                 display: "grid",
                 overflow: "hidden"
               }}
@@ -361,12 +353,10 @@ export function KnowledgeGraphPanel({
             <div style={{ display: "grid", gap: 16 }}>
               <div
                 style={{
-                background: aiWebComponentTokens.colorSurface,
-                border: `1px solid ${aiWebComponentTokens.colorBorder}`,
-                borderRadius: aiWebComponentTokens.radiusSmall,
-                display: "grid",
-                overflow: "hidden"
-              }}
+                  ...createPanelSectionStyle("accent"),
+                  display: "grid",
+                  overflow: "hidden"
+                }}
               >
                 <div
                   style={{
@@ -390,6 +380,44 @@ export function KnowledgeGraphPanel({
                         <span style={createToneBadgeStyle("secondary")}>{activeNode.category}</span>
                         <span style={createToneBadgeStyle("neutral")}>{relatedEdges.length} 条相邻关系</span>
                       </div>
+                      <div
+                        style={{
+                          display: "grid",
+                          gap: 8,
+                          gridTemplateColumns: "repeat(2, minmax(0, 1fr))"
+                        }}
+                      >
+                        <div
+                          style={{
+                            background: aiWebComponentTokens.colorSurface,
+                            border: `1px solid ${aiWebComponentTokens.colorAccentBorder}`,
+                            borderRadius: aiWebComponentTokens.radiusSmall,
+                            display: "grid",
+                            gap: 4,
+                            padding: "10px 12px"
+                          }}
+                        >
+                          <span style={sectionLabelStyle}>Category</span>
+                          <strong style={{ color: aiWebComponentTokens.colorText, fontSize: 13 }}>
+                            {activeNode.category}
+                          </strong>
+                        </div>
+                        <div
+                          style={{
+                            background: aiWebComponentTokens.colorSurface,
+                            border: `1px solid ${aiWebComponentTokens.colorAccentBorder}`,
+                            borderRadius: aiWebComponentTokens.radiusSmall,
+                            display: "grid",
+                            gap: 4,
+                            padding: "10px 12px"
+                          }}
+                        >
+                          <span style={sectionLabelStyle}>Relations</span>
+                          <strong style={{ color: aiWebComponentTokens.colorText, fontSize: 13 }}>
+                            {relatedEdges.length} 条
+                          </strong>
+                        </div>
+                      </div>
                       <div style={{ color: aiWebComponentTokens.colorTextSubtle, fontSize: 13, lineHeight: 1.65 }}>
                         {activeNode.description ?? "该节点用于承接当前图谱中的一类核心知识信息。"}
                       </div>
@@ -407,12 +435,10 @@ export function KnowledgeGraphPanel({
 
               <div
                 style={{
-                background: aiWebComponentTokens.colorSurface,
-                border: `1px solid ${aiWebComponentTokens.colorBorder}`,
-                borderRadius: aiWebComponentTokens.radiusSmall,
-                display: "grid",
-                overflow: "hidden"
-              }}
+                  ...createPanelSectionStyle("neutral"),
+                  display: "grid",
+                  overflow: "hidden"
+                }}
               >
                 <div
                   style={{
@@ -428,8 +454,13 @@ export function KnowledgeGraphPanel({
                     <div
                       key={edge.id}
                       style={{
-                        background: aiWebComponentTokens.colorSurface,
+                        background: index === 0 ? aiWebComponentTokens.colorSurface : aiWebComponentTokens.colorSurfaceRaised,
                         borderTop: index === 0 ? "none" : `1px solid ${aiWebComponentTokens.colorBorder}`,
+                        borderLeft:
+                          activeNodeIdResolved &&
+                          (edge.sourceId === activeNodeIdResolved || edge.targetId === activeNodeIdResolved)
+                            ? `2px solid ${aiWebComponentTokens.colorAccent}`
+                            : "2px solid transparent",
                         display: "grid",
                         gap: 6,
                         padding: "12px 14px"
@@ -468,13 +499,9 @@ export function KnowledgeGraphPanel({
               {unresolvedEdges.length > 0 ? (
                 <div
                   style={{
-                    background: aiWebComponentTokens.colorWarningSoft,
-                    border: `1px solid ${aiWebComponentTokens.colorWarningBorder}`,
-                    borderRadius: aiWebComponentTokens.radiusSmall,
-                    color: aiWebComponentTokens.colorTextSubtle,
+                    ...createPanelCalloutStyle("warning"),
                     fontSize: 12,
-                    lineHeight: 1.6,
-                    padding: "12px 14px"
+                    lineHeight: 1.6
                   }}
                 >
                   有 {unresolvedEdges.length} 条关系没有匹配到节点 id，图中已自动忽略，但仍建议将

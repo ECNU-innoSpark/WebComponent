@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { PanelStateBlock } from "./shared/PanelStateBlock";
 import {
+  createPanelSectionStyle,
   createIconFrameStyle,
   createToneBadgeStyle,
   panelBodyStyle,
@@ -261,15 +262,16 @@ export function ChatPanel({
               const isAssistant = message.role === "assistant";
               const isTool = message.role === "tool";
               const isSystem = message.role === "system";
-              const showAssistantSurface = isAssistant && (Boolean(message.title) || Boolean(message.description) || message.status === "streaming");
+              const showAssistantSurface =
+                isAssistant && (Boolean(message.title) || Boolean(message.description) || message.status === "streaming");
               const bubbleBackground = isUser
                 ? aiWebComponentTokens.colorAccent
                 : isAssistant
                   ? showAssistantSurface
-                    ? aiWebComponentTokens.colorSurface
+                    ? `linear-gradient(180deg, ${aiWebComponentTokens.colorSurface} 0%, ${aiWebComponentTokens.colorSurfaceRaised} 100%)`
                     : "transparent"
                   : isTool
-                    ? aiWebComponentTokens.colorSecondaryAccentSoft
+                    ? `linear-gradient(180deg, ${aiWebComponentTokens.colorSecondaryAccentSoft} 0%, ${aiWebComponentTokens.colorSurface} 100%)`
                     : aiWebComponentTokens.colorSurfaceMuted;
               const bubbleBorder = isUser
                 ? "none"
@@ -278,9 +280,10 @@ export function ChatPanel({
                     ? `1px solid ${messageBorderTone}`
                     : "none"
                   : `1px solid ${messageBorderTone}`;
-              const bubblePadding = isUser ? "13px 16px" : isAssistant ? (showAssistantSurface ? "13px 16px" : "2px 2px 2px 0") : "11px 13px";
+              const bubblePadding =
+                isUser ? "13px 16px" : isAssistant ? (showAssistantSurface ? "14px 16px" : "2px 2px 2px 0") : "12px 14px";
               const bubbleShadow =
-                isUser || (isAssistant && showAssistantSurface)
+                isUser || isTool || (isAssistant && showAssistantSurface)
                   ? aiWebComponentTokens.shadowSoft
                   : "none";
 
@@ -330,7 +333,7 @@ export function ChatPanel({
               }
 
               const defaultTitle =
-                message.title ?? (isTool ? "工具输出" : message.status === "streaming" && isAssistant ? "正在回复" : null);
+                message.title ?? (isTool ? "证据引用" : message.status === "streaming" && isAssistant ? "正在回复" : null);
               const showMessageLabel = Boolean(defaultTitle) || Boolean(messageActions);
 
               return (
@@ -396,6 +399,7 @@ export function ChatPanel({
                   >
                     <article
                       style={{
+                        ...(isTool ? createPanelSectionStyle("secondary") : null),
                         background: bubbleBackground,
                         border: bubbleBorder,
                         borderRadius: isUser ? 18 : aiWebComponentTokens.radius,

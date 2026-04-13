@@ -62,9 +62,10 @@ const shellStyle = {
 } satisfies CSSProperties;
 
 const textareaStyle = {
-  background: aiWebComponentTokens.colorSurfaceRaised,
+  background: aiWebComponentTokens.colorSurface,
   border: `1px solid ${aiWebComponentTokens.colorBorder}`,
   borderRadius: 18,
+  boxShadow: aiWebComponentTokens.shadowSoft,
   color: aiWebComponentTokens.colorText,
   minHeight: 108,
   padding: "14px 16px",
@@ -80,7 +81,7 @@ const actionsStyle = {
 } satisfies CSSProperties;
 
 const hintStyle = {
-  color: aiWebComponentTokens.colorMuted,
+  color: aiWebComponentTokens.colorTextSubtle,
   fontSize: 12,
   lineHeight: 1.5
 } satisfies CSSProperties;

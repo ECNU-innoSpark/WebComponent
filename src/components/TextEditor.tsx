@@ -29,9 +29,10 @@ export function TextEditor({
 }
 
 const editorStyle = {
-  background: aiWebComponentTokens.colorSurfaceRaised,
+  background: aiWebComponentTokens.colorSurface,
   border: `1px solid ${aiWebComponentTokens.colorBorder}`,
   borderRadius: aiWebComponentTokens.radiusSmall,
+  boxShadow: aiWebComponentTokens.shadowSoft,
   color: aiWebComponentTokens.colorText,
   fontFamily: '"SF Mono", "JetBrains Mono", "Menlo", monospace',
   fontSize: 13,
