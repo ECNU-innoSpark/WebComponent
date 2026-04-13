@@ -9,6 +9,8 @@ export { ToneBadge } from "./components/ToneBadge";
 export type { ToneBadgeProps } from "./components/ToneBadge";
 export { TextComposer } from "./components/TextComposer";
 export type { TextComposerProps } from "./components/TextComposer";
+export { TaskPresetBar } from "./components/TaskPresetBar";
+export type { TaskPresetBarItem, TaskPresetBarProps } from "./components/TaskPresetBar";
 export { TextEditor } from "./components/TextEditor";
 export type { TextEditorProps } from "./components/TextEditor";
 export { SessionListPanel } from "./components/SessionListPanel";

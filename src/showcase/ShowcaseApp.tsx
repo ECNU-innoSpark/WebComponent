@@ -11,7 +11,9 @@ import {
   FileManagerPanel,
   FilePreviewPanel,
   KnowledgeGraphPanel,
-  SessionListPanel
+  SessionListPanel,
+  TaskPresetBar,
+  type TaskPresetBarItem
 } from "../index";
 
 type EditorPage = "catalog" | "layout";
@@ -614,6 +616,30 @@ const sampleGraphEdges = [
   }
 ];
 
+const sampleTaskPresets = [
+  {
+    id: "lesson-outline",
+    label: "课程结构",
+    description: "按导入、讲解、训练、延伸快速生成课程骨架"
+  },
+  {
+    id: "question-design",
+    label: "提问设计",
+    description: "补齐课堂追问和互动语句，适合讲授环节"
+  },
+  {
+    id: "exercise-banding",
+    label: "练习分层",
+    description: "按 A/B 组拆分练习任务并说明难度目标"
+  }
+] satisfies TaskPresetBarItem[];
+
+const sampleTaskPrompts: Record<string, string> = {
+  "lesson-outline": "请把“动量守恒”这节课拆成导入、核心讲解、例题训练和课后延伸四段，并补充每段教学目标。",
+  "question-design": "请继续补充课堂提问语句，按“唤醒旧知 / 概念判断 / 迁移追问”三层展开。",
+  "exercise-banding": "请把练习题按 A/B 两组分层整理，并标注每组的难度、目标和使用时机。"
+};
+
 function clamp(value: number, min: number, max: number) {
   if (max < min) {
     return min;
@@ -627,6 +653,29 @@ function renderIcon(src: string, alt: string, mode: "chip" | "visual", tone: "ac
     <span className={`asset-${mode} tone-${tone}`}>
       <img alt={alt} src={src} />
     </span>
+  );
+}
+
+function DemoChatComposer() {
+  const initialTaskId = sampleTaskPresets[0]?.id ?? "";
+  const [selectedTaskId, setSelectedTaskId] = useState(initialTaskId);
+
+  return (
+    <div className="demo-composer">
+      <TaskPresetBar
+        hint="选择一个预设任务后，再继续发送给教学助手。"
+        items={sampleTaskPresets}
+        onChange={setSelectedTaskId}
+        value={selectedTaskId}
+      />
+      <button className="demo-composer-tool" type="button">
+        <span>上下文</span>
+      </button>
+      <div className="demo-input">{sampleTaskPrompts[selectedTaskId] ?? "请选择一个预设功能。"}</div>
+      <button className="demo-composer-send" type="button">
+        <span>发送</span>
+      </button>
+    </div>
   );
 }
 
@@ -644,19 +693,7 @@ function renderWidget(kind: WidgetKind) {
     case "chat":
       return (
         <ChatPanel
-          footer={
-            <div className="demo-composer">
-              <button className="demo-composer-tool" type="button">
-                <span>上下文</span>
-              </button>
-              <div className="demo-input">
-                请继续补充课堂提问语句，并把练习题按难度分成 A/B 两组。
-              </div>
-              <button className="demo-composer-send" type="button">
-                <span>发送</span>
-              </button>
-            </div>
-          }
+          footer={<DemoChatComposer />}
           headerActions={<span className="demo-pill">teaching-copilot</span>}
           hideHeader
           messages={sampleMessages}
