@@ -1,23 +1,30 @@
 import { startTransition, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import academicCapIcon from "../assets/icons/academic-cap.svg";
+import clipboardCheckIcon from "../assets/icons/clipboard-check.svg";
 import chatBubblesIcon from "../assets/icons/chat-bubbles.svg";
 import collectionIcon from "../assets/icons/collection.svg";
 import documentTextIcon from "../assets/icons/document-text.svg";
 import folderIcon from "../assets/icons/folder.svg";
 import informationCircleIcon from "../assets/icons/information-circle.svg";
 import lightBulbIcon from "../assets/icons/light-bulb.svg";
+import templateIcon from "../assets/icons/template.svg";
 import {
   ChatPanel,
   FileManagerPanel,
   FilePreviewPanel,
   KnowledgeGraphPanel,
+  PaperReviewSetupPanel,
+  type PaperReviewFile,
+  type PaperReviewOption,
   SessionListPanel,
   TaskPresetBar,
-  type TaskPresetBarItem
+  type TaskPresetBarItem,
+  WorkflowTemplatePanel,
+  type WorkflowTemplateItem
 } from "../index";
 
 type EditorPage = "catalog" | "layout";
-type WidgetKind = "session" | "chat" | "files" | "preview" | "graph";
+type WidgetKind = "review" | "template" | "session" | "chat" | "files" | "preview" | "graph";
 type WidgetLayout = {
   id: string;
   kind: WidgetKind;
@@ -64,10 +71,28 @@ type LayoutPathEntry = {
 
 const widgetDefinitions = [
   {
+    kind: "review" as const,
+    label: "PaperReviewSetupPanel",
+    canvasTitle: "论文审核",
+    summary: "审查标准、模式与上传。",
+    hint: "标准 / 模式 / 上传",
+    iconSrc: clipboardCheckIcon,
+    iconAlt: "clipboard check"
+  },
+  {
+    kind: "template" as const,
+    label: "WorkflowTemplatePanel",
+    canvasTitle: "功能模板",
+    summary: "预设功能与模板选择。",
+    hint: "模板 / 场景 / 入口",
+    iconSrc: templateIcon,
+    iconAlt: "template"
+  },
+  {
     kind: "session" as const,
     label: "SessionListPanel",
     canvasTitle: "最近会话",
-    summary: "会话列表控件，适合挂在左侧导航区。",
+    summary: "会话入口与历史。",
     hint: "列表 / 入口 / 历史记录",
     iconSrc: collectionIcon,
     iconAlt: "collection"
@@ -76,7 +101,7 @@ const widgetDefinitions = [
     kind: "chat" as const,
     label: "ChatPanel",
     canvasTitle: "教学协作对话",
-    summary: "对话主面板，适合放在工作台主视区。",
+    summary: "主对话工作区。",
     hint: "聊天 / 多轮对话 / 底部输入",
     iconSrc: chatBubblesIcon,
     iconAlt: "chat"
@@ -85,7 +110,7 @@ const widgetDefinitions = [
     kind: "files" as const,
     label: "FileManagerPanel",
     canvasTitle: "资料目录",
-    summary: "资料目录与文件操作面板。",
+    summary: "目录与文件操作。",
     hint: "目录 / 文件树 / 操作区",
     iconSrc: folderIcon,
     iconAlt: "folder"
@@ -94,7 +119,7 @@ const widgetDefinitions = [
     kind: "preview" as const,
     label: "FilePreviewPanel",
     canvasTitle: "文件预览",
-    summary: "文件预览与编辑占位面板。",
+    summary: "内容预览与编辑。",
     hint: "预览 / 文本 / 代码",
     iconSrc: documentTextIcon,
     iconAlt: "document"
@@ -103,7 +128,7 @@ const widgetDefinitions = [
     kind: "graph" as const,
     label: "KnowledgeGraphPanel",
     canvasTitle: "知识关系图",
-    summary: "知识图谱与结构关系面板。",
+    summary: "结构关系视图。",
     hint: "关系 / 节点 / 摘要",
     iconSrc: academicCapIcon,
     iconAlt: "academic cap"
@@ -111,6 +136,8 @@ const widgetDefinitions = [
 ] as const;
 
 const defaultSizes: Record<WidgetKind, { width: number; height: number }> = {
+  review: { width: 380, height: 560 },
+  template: { width: 460, height: 540 },
   session: { width: 360, height: 520 },
   chat: { width: 700, height: 560 },
   files: { width: 400, height: 520 },
@@ -129,7 +156,7 @@ function createLeaf(id: string, kind: WidgetKind): LayoutLeaf {
 function createDefaultLayoutTree(): LayoutNode {
   return {
     direction: "row",
-    first: createLeaf("layout-session", "session"),
+    first: createLeaf("layout-review", "review"),
     id: "layout-root",
     ratio: 0.28,
     second: createLeaf("layout-chat", "chat"),
@@ -505,28 +532,28 @@ const sampleMessages = [
   {
     id: "msg-0",
     role: "system" as const,
-    content: "已同步课程模板、讲义资料与课堂观察记录"
+    content: "已同步匿名论文稿、学院评审规范与历史盲审意见"
   },
   {
     id: "msg-1",
     role: "user" as const,
-    content: "请把“动量守恒”这节课拆成导入、核心讲解、例题训练和课后延伸四段。",
-    meta: "09:21"
+    content: "请先按盲审要求检查这篇论文的方法设计、创新性表达和匿名化风险。",
+    meta: "09:21 · blind-review"
   },
   {
     id: "msg-2",
     role: "assistant" as const,
     content:
-      "已按四段结构整理完成。\n\n1. 导入：用碰撞场景引出概念。\n2. 核心讲解：梳理封闭系统与守恒条件。\n3. 例题训练：从一维碰撞过渡到图像题。\n4. 课后延伸：安排生活化建模题与追问。",
-    meta: "09:21 · lesson-outline-v3",
+      "已完成第一轮审读。\n\n1. 方法设计：实验设定完整，但变量控制说明还不够具体。\n2. 创新性表达：亮点存在，但摘要和结论中的新意描述略重复。\n3. 盲审风险：致谢页和项目编号仍可能暴露作者信息，建议进一步匿名化。",
+    meta: "09:21 · review-summary-v2",
     status: "streaming" as const
   },
   {
     id: "msg-3",
     role: "tool" as const,
     title: "检索结果",
-    content: "知识库已引用《动量守恒专题讲义》与《实验课堂观察记录》。",
-    meta: "09:22 · knowledge.lookup"
+    content: "知识库已引用《研究生论文盲审规范》与《学院学术写作模板》。",
+    meta: "09:22 · review.policy.lookup"
   }
 ];
 
@@ -618,27 +645,136 @@ const sampleGraphEdges = [
 
 const sampleTaskPresets = [
   {
-    id: "lesson-outline",
-    label: "课程结构",
-    description: "按导入、讲解、训练、延伸快速生成课程骨架"
+    id: "blind-check",
+    label: "盲审检查",
+    description: "优先识别匿名化风险、结构问题和规范缺口"
   },
   {
-    id: "question-design",
-    label: "提问设计",
-    description: "补齐课堂追问和互动语句，适合讲授环节"
+    id: "summary-draft",
+    label: "总结草案",
+    description: "自动生成审稿结论摘要和重点问题归纳"
   },
   {
-    id: "exercise-banding",
-    label: "练习分层",
-    description: "按 A/B 组拆分练习任务并说明难度目标"
+    id: "revision-list",
+    label: "修改清单",
+    description: "按必须修改和建议优化拆分反馈条目"
   }
 ] satisfies TaskPresetBarItem[];
 
 const sampleTaskPrompts: Record<string, string> = {
-  "lesson-outline": "请把“动量守恒”这节课拆成导入、核心讲解、例题训练和课后延伸四段，并补充每段教学目标。",
-  "question-design": "请继续补充课堂提问语句，按“唤醒旧知 / 概念判断 / 迁移追问”三层展开。",
-  "exercise-banding": "请把练习题按 A/B 两组分层整理，并标注每组的难度、目标和使用时机。"
+  "blind-check": "请按盲审视角检查论文的匿名化风险、结构完整性和方法论表述问题。",
+  "summary-draft": "请生成一版审稿总结，包含总体判断、三项主要优点和三项关键问题。",
+  "revision-list": "请把需要反馈给作者的内容分成“必须修改”和“建议优化”两组。"
 };
+
+const sampleReviewDepartments = [
+  {
+    id: "cs",
+    label: "计算机",
+    description: "方法、实验、复现。",
+    meta: "工科模板",
+    badge: "当前"
+  },
+  {
+    id: "education",
+    label: "教育",
+    description: "研究设计、信效度。",
+    meta: "教育模板"
+  },
+  {
+    id: "economics",
+    label: "经管",
+    description: "模型、数据、稳健性。",
+    meta: "经管模板"
+  }
+] satisfies PaperReviewOption[];
+
+const sampleReviewModes = [
+  {
+    id: "blind-review",
+    label: "盲审",
+    description: "匿名化与规范优先。",
+    meta: "外审流程",
+    badge: "推荐"
+  },
+  {
+    id: "full-review",
+    label: "完整审核",
+    description: "内容、格式、附件全检。",
+    meta: "内部预审"
+  }
+] satisfies PaperReviewOption[];
+
+const sampleUploadModes = [
+  {
+    id: "single-file",
+    label: "单篇上传",
+    description: "单篇论文"
+  },
+  {
+    id: "batch-upload",
+    label: "批量上传",
+    description: "多篇打包"
+  }
+] satisfies PaperReviewOption[];
+
+const sampleReviewFiles = [
+  {
+    id: "paper-anon",
+    name: "匿名论文稿.pdf",
+    description: "主文档",
+    meta: "2.8 MB · 17 分钟前上传",
+    status: "uploaded",
+    badge: "已就绪"
+  },
+  {
+    id: "checklist",
+    name: "盲审评审模板.docx",
+    description: "评审模板",
+    meta: "84 KB · 模板中心同步",
+    status: "uploaded"
+  },
+  {
+    id: "appendix",
+    name: "补充材料.zip",
+    description: "附录材料",
+    meta: "5.1 MB · 校验中",
+    status: "pending",
+    badge: "待校验"
+  }
+] satisfies PaperReviewFile[];
+
+const sampleWorkflowTemplates = [
+  {
+    id: "paper-review-template",
+    title: "论文审核",
+    description: "适合盲审、完整审核和论文资料上传。",
+    category: "学术评审",
+    badge: "推荐",
+    highlights: ["盲审流程", "文件上传"]
+  },
+  {
+    id: "teaching-collab-template",
+    title: "教学协作对话",
+    description: "围绕备课、提问设计和课堂活动组织展开。",
+    category: "教学协作",
+    highlights: ["课程拆解", "互动追问"]
+  },
+  {
+    id: "knowledge-map-template",
+    title: "知识关系整理",
+    description: "把资料、概念和任务串成结构化关系视图。",
+    category: "知识组织",
+    highlights: ["节点整理", "关系归档"]
+  },
+  {
+    id: "batch-analysis-template",
+    title: "多文件分析",
+    description: "批量上传后统一做摘要、比对和差异归纳。",
+    category: "资料处理",
+    highlights: ["批量摘要", "差异比对"]
+  }
+] satisfies WorkflowTemplateItem[];
 
 function clamp(value: number, min: number, max: number) {
   if (max < min) {
@@ -663,7 +799,7 @@ function DemoChatComposer() {
   return (
     <div className="demo-composer">
       <TaskPresetBar
-        hint="选择一个预设任务后，再继续发送给教学助手。"
+        hint=""
         items={sampleTaskPresets}
         onChange={setSelectedTaskId}
         value={selectedTaskId}
@@ -679,8 +815,40 @@ function DemoChatComposer() {
   );
 }
 
+function DemoWorkflowTemplatePanel() {
+  const [selectedTemplateId, setSelectedTemplateId] = useState(sampleWorkflowTemplates[0]?.id ?? "");
+
+  return (
+    <WorkflowTemplatePanel
+      hideHeader
+      hint="选择后作为当前入口模板。"
+      items={sampleWorkflowTemplates}
+      onSelect={(item) => setSelectedTemplateId(item.id)}
+      selectedItemId={selectedTemplateId}
+      titleIcon={renderIcon(templateIcon, "template", "chip")}
+    />
+  );
+}
+
 function renderWidget(kind: WidgetKind) {
   switch (kind) {
+    case "review":
+      return (
+        <PaperReviewSetupPanel
+          departmentOptions={sampleReviewDepartments}
+          files={sampleReviewFiles}
+          hideHeader
+          onUploadClick={() => undefined}
+          primaryActionLabel="生成审核流程"
+          reviewModes={sampleReviewModes}
+          secondaryActionLabel="保存配置"
+          summary="计算机 · 盲审"
+          titleIcon={renderIcon(clipboardCheckIcon, "clipboard check", "chip")}
+          uploadModes={sampleUploadModes}
+        />
+      );
+    case "template":
+      return <DemoWorkflowTemplatePanel />;
     case "session":
       return (
         <SessionListPanel
@@ -694,11 +862,11 @@ function renderWidget(kind: WidgetKind) {
       return (
         <ChatPanel
           footer={<DemoChatComposer />}
-          headerActions={<span className="demo-pill">teaching-copilot</span>}
+          headerActions={<span className="demo-pill">peer-review-copilot</span>}
           hideHeader
           messages={sampleMessages}
           status="streaming"
-          statusBanner="当前会话已接入 3 类教学上下文"
+          statusBanner="当前会话已接入 3 类审稿上下文"
           titleIcon={renderIcon(chatBubblesIcon, "chat", "chip")}
         />
       );
@@ -752,7 +920,7 @@ function renderWidget(kind: WidgetKind) {
           hideHeader
           nodes={sampleGraphNodes}
           onSelectNode={() => undefined}
-          summary="图谱面板适合承接课程目标、知识点与练习任务之间的结构化关系，也支持统一的空态、加载态和错误态。"
+          summary="课程目标、知识点与任务关系。"
           titleIcon={renderIcon(academicCapIcon, "academic cap", "chip")}
         />
       );
@@ -1235,14 +1403,14 @@ function SplitWorkspace({
 
 export default function ShowcaseApp() {
   const [activePage, setActivePage] = useState<EditorPage>("catalog");
-  const [activeCatalogKind, setActiveCatalogKind] = useState<WidgetKind>("chat");
+  const [activeCatalogKind, setActiveCatalogKind] = useState<WidgetKind>("review");
   const [catalogPreview, setCatalogPreview] = useState<WidgetLayout>({
     id: "catalog-preview",
-    kind: "chat",
+    kind: "review",
     x: 56,
     y: 56,
-    width: defaultSizes.chat.width,
-    height: defaultSizes.chat.height
+    width: defaultSizes.review.width,
+    height: defaultSizes.review.height
   });
   const [layoutRoot, setLayoutRoot] = useState<LayoutNode | null>(createDefaultLayoutTree);
   const [selectedLayoutId, setSelectedLayoutId] = useState<string>("layout-chat");

@@ -180,15 +180,13 @@ export function FileManagerPanel({
           </div>
         ) : null}
         <div style={createPanelCalloutStyle("secondary")}>
-          <div style={{ ...sectionLabelStyle, marginBottom: 8 }}>Directory Context</div>
+          <div style={{ ...sectionLabelStyle, marginBottom: 8 }}>目录</div>
           <div style={{ color: aiWebComponentTokens.colorText, fontSize: 15, fontWeight: 700, marginBottom: 6 }}>
             {currentPath}
           </div>
-          <div style={{ color: aiWebComponentTokens.colorTextSubtle, fontSize: 13, lineHeight: 1.6 }}>
-            当前目录下共有 {nodes.length} 个项目。
-            {selectedNode
-              ? ` 已聚焦 ${selectedNode.name}，可以继续查看来源、预览内容或执行后续动作。`
-              : " 适合在这里快速浏览资料、选择文件并衔接预览面板。"}
+          <div style={{ color: aiWebComponentTokens.colorTextSubtle, fontSize: 12, lineHeight: 1.55 }}>
+            {nodes.length} 个项目
+            {selectedNode ? ` · 当前 ${selectedNode.name}` : ""}
           </div>
         </div>
         {showError ? (

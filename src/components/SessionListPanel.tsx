@@ -96,13 +96,15 @@ export function SessionListPanel({
       <div style={bodyStyle}>
         {activeItem ? (
           <div style={createPanelCalloutStyle("accent")}>
-            <div style={{ ...sectionLabelStyle, marginBottom: 8 }}>Current Session</div>
+            <div style={{ ...sectionLabelStyle, marginBottom: 8 }}>当前</div>
             <div style={{ color: aiWebComponentTokens.colorText, fontSize: 15, fontWeight: 700, marginBottom: 6 }}>
               {activeItem.title}
             </div>
-            <div style={{ color: aiWebComponentTokens.colorTextSubtle, fontSize: 13, lineHeight: 1.6 }}>
-              {activeItem.description ?? "当前焦点会话适合继续补充上下文、查看来源并衔接后续操作。"}
-            </div>
+            {activeItem.description ? (
+              <div style={{ color: aiWebComponentTokens.colorTextSubtle, fontSize: 12, lineHeight: 1.55 }}>
+                {activeItem.description}
+              </div>
+            ) : null}
             {activeItem.meta ? (
               <div style={{ color: aiWebComponentTokens.colorMuted, fontSize: 12, marginTop: 8 }}>
                 {activeItem.meta}

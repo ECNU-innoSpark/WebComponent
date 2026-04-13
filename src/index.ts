@@ -11,6 +11,17 @@ export { TextComposer } from "./components/TextComposer";
 export type { TextComposerProps } from "./components/TextComposer";
 export { TaskPresetBar } from "./components/TaskPresetBar";
 export type { TaskPresetBarItem, TaskPresetBarProps } from "./components/TaskPresetBar";
+export { PaperReviewSetupPanel } from "./components/PaperReviewSetupPanel";
+export type {
+  PaperReviewFile,
+  PaperReviewOption,
+  PaperReviewSetupPanelProps
+} from "./components/PaperReviewSetupPanel";
+export { WorkflowTemplatePanel } from "./components/WorkflowTemplatePanel";
+export type {
+  WorkflowTemplateItem,
+  WorkflowTemplatePanelProps
+} from "./components/WorkflowTemplatePanel";
 export { TextEditor } from "./components/TextEditor";
 export type { TextEditorProps } from "./components/TextEditor";
 export { SessionListPanel } from "./components/SessionListPanel";
